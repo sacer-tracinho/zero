@@ -119,15 +119,55 @@ body.light #c2:hover{background:#e8e0d0}
 body.light #c3:hover{background:#eae8d4}
 body{background:var(--z-bg,#0d0a14);color:var(--z-text,#ddd8cc);transition:background 0.4s,color 0.4s}
 
-/* ── TOGGLE BUTTON ── */
-.theme-toggle{
+/* ── TOP CONTROLS (theme + radio) ── */
+.top-controls{
   position:fixed;top:1.4rem;right:2rem;z-index:100;
+  display:flex;align-items:center;gap:6px;
+}
+.theme-toggle{
   font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.15em;
   padding:5px 14px;border:1px solid var(--z-border);border-radius:2px;
   background:var(--z-bg2);color:var(--z-text-dim);cursor:pointer;
-  transition:all 0.2s;
+  transition:all 0.2s;white-space:nowrap;
 }
 .theme-toggle:hover{border-color:var(--z-border-h);color:var(--z-text)}
+
+/* ── RADIO PLAYER ── */
+.radio-player{
+  display:flex;align-items:center;
+  border:1px solid var(--z-border);border-radius:2px;
+  background:var(--z-bg2);overflow:hidden;
+  transition:border-color 0.2s;
+}
+.radio-player:hover{border-color:var(--z-border-h)}
+.radio-btn{
+  padding:5px 12px;color:var(--z-text-dim);cursor:pointer;
+  border:none;background:transparent;
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.15em;
+  transition:color 0.2s;flex-shrink:0;white-space:nowrap;
+}
+.radio-btn:hover{color:var(--z-text)}
+.radio-btn.playing{color:#7a60c0}
+.radio-track-wrap{
+  overflow:hidden;width:0;
+  display:flex;align-items:center;
+  border-left:0px solid var(--z-border);
+  transition:width 0.45s ease;
+}
+.radio-player.playing .radio-track-wrap{width:190px;border-left-width:1px}
+.radio-track-inner{
+  display:inline-flex;white-space:nowrap;will-change:transform;
+  padding:5px 0 5px 10px;
+}
+.radio-track-inner span{
+  color:var(--z-text-mute);font-size:10px;
+  font-family:'JetBrains Mono',monospace;letter-spacing:0.12em;
+  padding-right:40px;
+}
+@media(max-width:600px){
+  .top-controls{right:1.2rem;gap:4px}
+  .radio-player.playing .radio-track-wrap{width:100px}
+}
 
 #c4::after{background:#3a6045}
 #c4 .card-name{color:#6a9870}
@@ -142,12 +182,102 @@ body.light #c4:hover{background:#dde8de}
 #c5 .arrow{color:#1a5a8a}
 #c5:hover{background:#080e18}
 body.light #c5:hover{background:#d8e8f4}
+
+/* ── EMULATOR OVERLAY ── */
+#_emu-backdrop{
+  position:fixed;inset:0;z-index:10000;
+  background:rgba(10,8,18,0.82);
+  display:flex;align-items:center;justify-content:center;
+}
+#_emulator{
+  font-family:'JetBrains Mono',monospace;box-sizing:border-box;
+  width:min(1280px,100vw);height:min(720px,100vh);
+  background:#0a0812;border:1px solid #2e2440;border-radius:4px;
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 0 80px rgba(122,96,192,0.18);
+}
+#_emulator *{box-sizing:border-box}
+.emu-header{
+  width:100%;display:flex;justify-content:space-between;align-items:center;
+  padding:7px 14px;flex-shrink:0;border-bottom:1px solid #1e1630;
+}
+.emu-title{font-size:10px;color:#3a2f52;letter-spacing:0.2em;}
+.emu-close{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.15em;
+  padding:4px 12px;border:1px solid #2e2440;border-radius:2px;
+  background:#110d1c;color:#524470;cursor:pointer;transition:all 0.2s;
+}
+.emu-close:hover{border-color:#7a60c0;color:#ddd8cc;}
+.emu-game-wrap{
+  width:100%;flex:1;min-height:0;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.emu-game-wrap>div,
+.emu-game-wrap iframe{width:100%!important;height:100%!important;}
+/* hint bar — desktop */
+.emu-hint{
+  width:100%;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+  padding:6px 14px 8px;flex-shrink:0;border-top:1px solid #1e1630;
+}
+.emu-hint span{font-size:9px;color:#2e2440;letter-spacing:0.12em;}
+.emu-hint b{color:#3a2f52;}
+/* mobile controls */
+.emu-controls{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  padding:6px 18px 10px;flex-shrink:0;
+  border-top:1px solid #1e1630;background:#0a0812;
+}
+.emu-dpad,.emu-face{
+  display:grid;
+  grid-template-columns:repeat(3,42px);
+  grid-template-rows:repeat(3,42px);
+}
+.emu-mid{display:flex;flex-direction:column;gap:8px;align-items:center;}
+.emu-btn{
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(17,13,28,0.9);border:1px solid #2e2440;border-radius:3px;
+  color:#3a2f52;font-family:'JetBrains Mono',monospace;font-weight:700;
+  user-select:none;-webkit-user-select:none;touch-action:none;cursor:pointer;
+  transition:background 0.08s,color 0.08s,border-color 0.08s;
+}
+.emu-dpad .emu-btn,.emu-face .emu-btn{width:42px;height:42px;font-size:15px;}
+.emu-mid .emu-btn{font-size:8px;letter-spacing:0.08em;width:54px;height:22px;border-radius:10px;}
+.emu-btn.pressed,.emu-btn:active{background:rgba(122,96,192,0.28);color:#ddd8cc;border-color:#7a60c0;}
+.emu-btn-a{color:#c86050!important} .emu-btn-b{color:#c4aa38!important}
+.emu-btn-x{color:#4a9ed4!important} .emu-btn-y{color:#6a9870!important}
+.emu-btn-a.pressed,.emu-btn-a:active{border-color:#c86050!important}
+.emu-btn-b.pressed,.emu-btn-b:active{border-color:#c4aa38!important}
+.emu-btn-x.pressed,.emu-btn-x:active{border-color:#4a9ed4!important}
+.emu-btn-y.pressed,.emu-btn-y:active{border-color:#6a9870!important}
+/* rotate nudge iOS */
+.emu-rotate-hint{
+  display:none;position:absolute;inset:0;background:rgba(10,8,18,0.92);
+  align-items:center;justify-content:center;z-index:2;
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:#3a2f52;
+  letter-spacing:0.15em;text-align:center;flex-direction:column;gap:10px;
+}
+@media(orientation:portrait){.emu-rotate-hint{display:flex;}}
+@media(max-width:600px){
+  #_emulator{width:100vw;height:100vh;border-radius:0;border:none;}
+}
 </style>
 </head>
 <body>
 
 <canvas id="bg"></canvas>
-<button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">// ☀ LIGHT</button>
+<audio id="radio-audio" preload="none"></audio>
+
+<div class="top-controls">
+  <div class="radio-player" id="radio-player">
+    <button class="radio-btn" id="radio-btn" onclick="toggleRadio()">// ▶ NR.FM</button>
+    <div class="radio-track-wrap" id="radio-track-wrap">
+      <div class="radio-track-inner" id="radio-track-inner">
+        <span id="radio-track-span">NIGHTRIDE.FM — SYNTHWAVE</span>
+      </div>
+    </div>
+  </div>
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">// ☀ LIGHT</button>
+</div>
 
 <div class="page">
   <div class="hero">
@@ -454,22 +584,201 @@ document.fonts.ready.then(()=>{
 
 
 /* ── EASTER EGG ──────────────────────────────────────────────
-   Clique 7x no título .ZERO// para ativar.
-   Clique na tela para fechar.
-─────────────────────────────────────────────────────────── */
-(function() {
+   7x clique no título  → gatinho
+   7x clique no gatinho em < 5s → Top Gear SNES
+─────────────────────────────────────────────────────────────── */
+(function(){
   var taps = 0, lastTap = 0, shown = false;
   var gifSrc = 'https://death-label.github.io/zero/Cute_Cat_GIF.gif';
+  var ROM_URL = 'https://death-label.github.io/zero/drivefaster.smc';
+  var EJS_PATH = 'https://cdn.emulatorjs.org/stable/data/';
 
-  function showOverlay() {
+  /* ─ keyboard dispatch para controles mobile ─ */
+  var BTN_KEYS = {
+    up:    {key:'ArrowUp',    code:'ArrowUp'},
+    down:  {key:'ArrowDown',  code:'ArrowDown'},
+    left:  {key:'ArrowLeft',  code:'ArrowLeft'},
+    right: {key:'ArrowRight', code:'ArrowRight'},
+    a:     {key:'x',          code:'KeyX'},
+    b:     {key:'z',          code:'KeyZ'},
+    x:     {key:'s',          code:'KeyS'},
+    y:     {key:'a',          code:'KeyA'},
+    l:     {key:'q',          code:'KeyQ'},
+    r:     {key:'w',          code:'KeyW'},
+    start: {key:'Enter',      code:'Enter'},
+    sel:   {key:'Shift',      code:'ShiftLeft'}
+  };
+  var held = {};
+  function pressBtn(btn, down){
+    var k = BTN_KEYS[btn]; if(!k) return;
+    if(!!held[btn] === down) return;
+    held[btn] = down;
+    var ev = new KeyboardEvent(down ? 'keydown' : 'keyup',
+      {key:k.key, code:k.code, bubbles:true, cancelable:true});
+    window.dispatchEvent(ev);
+    document.dispatchEvent(ev);
+  }
+
+  function makeBtn(label, btn, extraClass){
+    var el = document.createElement('div');
+    el.className = 'emu-btn' + (extraClass ? ' '+extraClass : '');
+    el.textContent = label;
+    el.addEventListener('pointerdown', function(e){
+      e.preventDefault();
+      try{ el.setPointerCapture(e.pointerId); }catch(x){}
+      pressBtn(btn, true);
+      el.classList.add('pressed');
+    });
+    el.addEventListener('pointerup', function(e){
+      e.preventDefault();
+      pressBtn(btn, false);
+      el.classList.remove('pressed');
+    });
+    el.addEventListener('pointercancel', function(){
+      pressBtn(btn, false);
+      el.classList.remove('pressed');
+    });
+    return el;
+  }
+
+  function buildDpad(){
+    var g = document.createElement('div'); g.className = 'emu-dpad';
+    var emp = function(){ return document.createElement('div'); };
+    g.appendChild(emp()); g.appendChild(makeBtn('\u25b2','up')); g.appendChild(emp());
+    g.appendChild(makeBtn('\u25c0','left')); g.appendChild(emp()); g.appendChild(makeBtn('\u25b6','right'));
+    g.appendChild(emp()); g.appendChild(makeBtn('\u25bc','down')); g.appendChild(emp());
+    return g;
+  }
+  function buildFace(){
+    var g = document.createElement('div'); g.className = 'emu-face';
+    var emp = function(){ return document.createElement('div'); };
+    g.appendChild(emp()); g.appendChild(makeBtn('X','x','emu-btn-x')); g.appendChild(emp());
+    g.appendChild(makeBtn('Y','y','emu-btn-y')); g.appendChild(emp()); g.appendChild(makeBtn('A','a','emu-btn-a'));
+    g.appendChild(emp()); g.appendChild(makeBtn('B','b','emu-btn-b')); g.appendChild(emp());
+    return g;
+  }
+  function buildMid(){
+    var g = document.createElement('div'); g.className = 'emu-mid';
+    g.appendChild(makeBtn('SEL','sel'));
+    g.appendChild(makeBtn('STA','start'));
+    return g;
+  }
+
+  function tryLandscape(){
+    if(screen.orientation && screen.orientation.lock)
+      screen.orientation.lock('landscape-primary').catch(function(){});
+  }
+  function unlockOrientation(){
+    if(screen.orientation && screen.orientation.unlock)
+      try{ screen.orientation.unlock(); }catch(e){}
+  }
+
+  var ejsLoaded = false;
+  function launchEmulator(){
+    var cat = document.getElementById('_easter');
+    if(cat) cat.remove();
+    shown = false;
+
+    var isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if(isMobile) tryLandscape();
+
+    /* pausa a radio se estiver tocando */
+    if(typeof window.toggleRadio === 'function' && document.getElementById('radio-player').classList.contains('playing')){
+      window.toggleRadio();
+      window._emuRadioWasPlaying = true;
+    } else {
+      window._emuRadioWasPlaying = false;
+    }
+
+    function closeEmu(){
+      backdrop.remove();
+      unlockOrientation();
+      delete window.EJS_player;
+      /* retoma a radio se estava tocando antes */
+      if(window._emuRadioWasPlaying){ window._emuRadioWasPlaying = false; window.toggleRadio(); }
+    }
+
+    /* backdrop */
+    var backdrop = document.createElement('div');
+    backdrop.id = '_emu-backdrop';
+    backdrop.addEventListener('click', function(e){
+      if(e.target === backdrop){ closeEmu(); }
+    });
+
+    var emu = document.createElement('div');
+    emu.id = '_emulator';
+
+    /* header */
+    var hdr = document.createElement('div'); hdr.className = 'emu-header';
+    var ttl = document.createElement('span'); ttl.className = 'emu-title';
+    ttl.textContent = '// TOP GEAR \u00b7 SUPER NINTENDO';
+    var cls = document.createElement('button'); cls.className = 'emu-close';
+    cls.textContent = '// \u2715 FECHAR';
+    cls.onclick = function(){ closeEmu(); };
+    hdr.appendChild(ttl); hdr.appendChild(cls);
+    emu.appendChild(hdr);
+
+    /* game area */
+    var gw = document.createElement('div'); gw.className = 'emu-game-wrap';
+    var ge = document.createElement('div'); ge.id = 'ejs-game';
+    ge.style.cssText = 'width:100%;height:100%;';
+    gw.appendChild(ge);
+
+    /* rotate hint — visivel em portrait via CSS */
+    var rh = document.createElement('div'); rh.className = 'emu-rotate-hint';
+    rh.innerHTML = '<span style="font-size:32px;margin-bottom:8px">\u27f3</span><span>GIRE O DISPOSITIVO<br>PARA JOGAR</span>';
+    gw.appendChild(rh);
+    emu.appendChild(gw);
+
+    /* controles mobile ou hint desktop */
+    if(isMobile){
+      var ctrls = document.createElement('div'); ctrls.className = 'emu-controls';
+      ctrls.appendChild(buildDpad());
+      ctrls.appendChild(buildMid());
+      ctrls.appendChild(buildFace());
+      emu.appendChild(ctrls);
+    } else {
+      var hint = document.createElement('div'); hint.className = 'emu-hint';
+      [['\u2191\u2193\u2190\u2192','DIRECIONAL'],['Z','B'],['X','A'],['A','Y'],['S','X'],
+       ['Q','L'],['W','R'],['ENTER','START'],['SHIFT','SELECT']].forEach(function(p){
+        var s = document.createElement('span');
+        s.innerHTML = '<b>'+p[0]+'</b>&nbsp;'+p[1];
+        hint.appendChild(s);
+      });
+      emu.appendChild(hint);
+    }
+
+    backdrop.appendChild(emu);
+    document.body.appendChild(backdrop);
+
+    /* EmulatorJS */
+    window.EJS_player         = '#ejs-game';
+    window.EJS_core           = 'snes';
+    window.EJS_gameUrl        = ROM_URL;
+    window.EJS_pathtodata     = EJS_PATH;
+    window.EJS_startOnLoaded  = true;
+    window.EJS_color          = '#7a60c0';
+    window.EJS_VirtualGamepad = false;
+
+    if(!ejsLoaded){
+      var sc = document.createElement('script');
+      sc.src = EJS_PATH + 'loader.js';
+      sc.onload = function(){ ejsLoaded = true; };
+      document.body.appendChild(sc);
+    }
+  }
+
+  /* ─ overlay do gatinho ─ */
+  var catTaps = 0, catLastTap = 0;
+
+  function showOverlay(){
     var overlay = document.createElement('div');
     overlay.id = '_easter';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(13,10,20,0.88);cursor:pointer';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(13,10,20,0.88)';
 
     var box = document.createElement('div');
     box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:0;max-width:580px;width:92%';
 
-    // Ticker "Happy Happy Happy..."
     var ticker = document.createElement('div');
     ticker.style.cssText = 'overflow:hidden;width:100%;height:42px;margin-bottom:14px;display:flex;align-items:center';
     var track = document.createElement('div');
@@ -480,37 +789,45 @@ document.fonts.ready.then(()=>{
     track.appendChild(s1); track.appendChild(s2);
     ticker.appendChild(track);
 
-    // Cat gif
     var img = document.createElement('img');
-    img.style.cssText = 'width:100%;border-radius:6px;display:block';
-    img.src = gifSrc;
+    img.style.cssText = 'width:100%;border-radius:6px;display:block;cursor:pointer;transition:opacity 0.1s;user-select:none;-webkit-user-select:none';
+    img.src = gifSrc; img.draggable = false;
 
-    box.appendChild(ticker);
-    box.appendChild(img);
+    /* 7 cliques no gatinho em < 5s = emulador */
+    img.addEventListener('click', function(e){
+      e.stopPropagation();
+      var now = Date.now();
+      if(now - catLastTap > 5000) catTaps = 0;
+      catLastTap = now; catTaps++;
+      img.style.opacity = '0.35';
+      setTimeout(function(){ img.style.opacity = '1'; }, 110);
+      if(catTaps >= 7){ catTaps = 0; launchEmulator(); }
+    });
+
+    overlay.addEventListener('click', function(){ overlay.remove(); shown = false; });
+
+    box.appendChild(ticker); box.appendChild(img);
     overlay.appendChild(box);
-    overlay.addEventListener('click', function() { overlay.remove(); shown = false; });
     document.body.appendChild(overlay);
 
-    // Animate ticker
     var x = 0, last = null, unitW = 0;
-    function tick(now) {
-      if (!document.getElementById('_easter')) return;
-      if (last === null) { last = now; unitW = s1.offsetWidth; }
+    function tick(now){
+      if(!document.getElementById('_easter')) return;
+      if(last === null){ last = now; unitW = s1.offsetWidth; }
       var dt = (now - last) / 1000; last = now;
       x -= 260 * dt;
-      if (unitW && x <= -unitW) x += unitW;
-      track.style.transform = 'translateX(' + x + 'px)';
+      if(unitW && x <= -unitW) x += unitW;
+      track.style.transform = 'translateX('+x+'px)';
       requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
   }
 
-  document.querySelector('.title-main').addEventListener('click', function() {
+  document.querySelector('.title-main').addEventListener('click', function(){
     var now = Date.now();
-    if (now - lastTap > 5000) taps = 0;
-    lastTap = now;
-    taps++;
-    if (taps >= 7 && !shown) { shown = true; taps = 0; showOverlay(); }
+    if(now - lastTap > 5000) taps = 0;
+    lastTap = now; taps++;
+    if(taps >= 7 && !shown){ shown = true; taps = 0; showOverlay(); }
   });
 })();
 
@@ -556,7 +873,134 @@ function stopGhost(id){
   {gid:'ghost-c5',set:GHOST_SETS['ghost-c5']},
 ].forEach(({gid,set})=>startGhost(gid,set));
 
-/* theme toggle */
+/* ── RADIO PLAYER ─────────────────────────────────────────────
+   Stream : https://stream.nightride.fm/nightride.mp3
+   Meta   : Icecast status-json.xsl (CORS — best-effort)
+─────────────────────────────────────────────────────────────── */
+(function(){
+  const STREAM   = 'https://stream.nightride.fm/nightride.mp3';
+  const META_URL = 'https://stream.nightride.fm/status-json.xsl';
+  const POLL_MS  = 18000;
+
+  const audio      = document.getElementById('radio-audio');
+  const player     = document.getElementById('radio-player');
+  const btn        = document.getElementById('radio-btn');
+  const trackWrap  = document.getElementById('radio-track-wrap');
+  const trackInner = document.getElementById('radio-track-inner');
+  const trackSpan  = document.getElementById('radio-track-span');
+
+  let playing    = false;
+  let tickerX    = 0;
+  let tickerLast = null;
+  let tickerRAF  = null;
+  let metaTimer  = null;
+
+  /* ── ticker ── */
+  function startTicker(){
+    setTimeout(()=>{
+      const unitW = trackSpan.offsetWidth + 40;
+      tickerX = 0; tickerLast = null;
+      function tick(now){
+        if(!playing) return;
+        if(tickerLast === null) tickerLast = now;
+        tickerX -= 36 * ((now - tickerLast) / 1000);
+        tickerLast = now;
+        if(tickerX <= -unitW) tickerX += unitW;
+        trackInner.style.transform = `translateX(${tickerX}px)`;
+        tickerRAF = requestAnimationFrame(tick);
+      }
+      tickerRAF = requestAnimationFrame(tick);
+    }, 500);
+  }
+  function stopTicker(){
+    if(tickerRAF){ cancelAnimationFrame(tickerRAF); tickerRAF = null; }
+    tickerX = 0; tickerLast = null;
+    trackInner.style.transform = 'translateX(0)';
+  }
+
+  /* ── now-playing ── */
+  function setTrack(raw){
+    if(!raw || !raw.trim()) return;
+    const text = raw.trim().toUpperCase();
+    trackSpan.textContent = text;
+    // ensure clone for seamless loop
+    const spans = trackInner.querySelectorAll('span');
+    if(spans.length < 2){
+      const clone = trackSpan.cloneNode(true);
+      clone.removeAttribute('id');
+      trackInner.appendChild(clone);
+    } else {
+      spans[1].textContent = text;
+    }
+  }
+  function fetchMeta(){
+    fetch(META_URL, {cache:'no-cache'})
+      .then(r => r.json())
+      .then(data => {
+        let src = data?.icestats?.source;
+        if(Array.isArray(src)) src = src.find(s => (s.listenurl||'').includes('nightride')) || src[0];
+        const title = src?.title || src?.['stream-title'] || '';
+        if(title) setTrack(title);
+      })
+      .catch(()=>{});
+  }
+  function startMeta(){ fetchMeta(); metaTimer = setInterval(fetchMeta, POLL_MS); }
+  function stopMeta(){ clearInterval(metaTimer); metaTimer = null; }
+
+  /* ── play state helpers ── */
+  function onPlay(){
+    playing = true;
+    player.classList.add('playing');
+    btn.classList.add('playing');
+    btn.textContent = '// ■ NR.FM';
+    startTicker();
+    startMeta();
+  }
+  function onStop(){
+    playing = false;
+    player.classList.remove('playing');
+    btn.classList.remove('playing');
+    btn.textContent = '// ▶ NR.FM';
+    stopTicker();
+    stopMeta();
+  }
+
+  /* ── toggle ── */
+  window.toggleRadio = function(){
+    if(!playing){
+      // set src fresh every time to avoid stale stream
+      audio.src = STREAM;
+      audio.volume = 1;
+      const p = audio.play();
+      if(p !== undefined){
+        p.then(onPlay).catch(err => {
+          console.warn('[radio] play() rejected:', err);
+          audio.src = '';
+        });
+      } else {
+        onPlay(); // older browsers return void
+      }
+    } else {
+      audio.pause();
+      audio.src = '';
+      onStop();
+    }
+  };
+
+  audio.addEventListener('error', () => { if(playing) onStop(); });
+  audio.addEventListener('stalled', () => {
+    if(playing){ audio.load(); audio.play().catch(()=>{}); }
+  });
+
+  /* autoplay no primeiro clique em qualquer lugar da página */
+  document.addEventListener('click', function firstClick(){
+    document.removeEventListener('click', firstClick);
+    if(!playing) window.toggleRadio();
+  }, {once: true});
+})();
+
+
+
 function toggleTheme(){
   const body = document.body;
   const btn  = document.getElementById('theme-toggle');
