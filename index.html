@@ -155,6 +155,31 @@ body{background:var(--z-bg,#0d0a14);color:var(--z-text,#ddd8cc);transition:backg
   transition:width 0.45s ease;
 }
 .radio-player.playing .radio-track-wrap{width:190px;border-left-width:1px}
+.radio-vol-wrap{
+  display:flex;align-items:center;
+  border-left:0px solid var(--z-border);
+  transition:width 0.45s ease;
+  width:0;overflow:hidden;
+}
+.radio-player.playing .radio-vol-wrap{width:90px;border-left-width:1px}
+.radio-vol{
+  -webkit-appearance:none;appearance:none;
+  width:64px;height:2px;margin:0 13px;
+  background:var(--z-border-h);border-radius:1px;outline:none;cursor:pointer;
+  flex-shrink:0;
+}
+.radio-vol::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:8px;height:8px;border-radius:50%;
+  background:#7a60c0;cursor:pointer;border:none;
+  transition:background 0.2s;
+}
+.radio-vol::-moz-range-thumb{
+  width:8px;height:8px;border-radius:50%;
+  background:#7a60c0;cursor:pointer;border:none;
+}
+.radio-vol::-webkit-slider-thumb:hover{background:#ddd8cc;}
+.radio-vol::-moz-range-thumb:hover{background:#ddd8cc;}
 .radio-track-inner{
   display:inline-flex;white-space:nowrap;will-change:transform;
   padding:5px 0 5px 10px;
@@ -274,6 +299,10 @@ body.light #c5:hover{background:#d8e8f4}
       <div class="radio-track-inner" id="radio-track-inner">
         <span id="radio-track-span">NIGHTRIDE.FM — SYNTHWAVE</span>
       </div>
+    </div>
+    <div class="radio-vol-wrap">
+      <input class="radio-vol" id="radio-vol" type="range" min="0" max="1" step="0.02" value="0.5"
+        oninput="document.getElementById('radio-audio').volume=this.value">
     </div>
   </div>
   <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">// ☀ LIGHT</button>
@@ -691,9 +720,27 @@ document.fonts.ready.then(()=>{
     }
 
     function closeEmu(){
+      /* para o emulador antes de remover o DOM */
+      try{
+        if(window.EJS_emulator){
+          if(typeof window.EJS_emulator.pause  === 'function') window.EJS_emulator.pause();
+          if(typeof window.EJS_emulator.exit   === 'function') window.EJS_emulator.exit();
+          if(typeof window.EJS_emulator.remove === 'function') window.EJS_emulator.remove();
+        }
+        /* para o audio interno do EmulatorJS se existir */
+        var ejsAudio = document.querySelectorAll('#ejs-game audio, #ejs-game video');
+        ejsAudio.forEach(function(a){ try{ a.pause(); a.src=''; }catch(e){} });
+        /* mata workers / audioContext que o emulador possa ter criado */
+        if(window.EJS_emulator && window.EJS_emulator.Module){
+          var m = window.EJS_emulator.Module;
+          if(m.SDL2){ try{ m.SDL2.audioContext && m.SDL2.audioContext.close(); }catch(e){} }
+        }
+      }catch(e){}
+      delete window.EJS_emulator;
+      delete window.EJS_player;
+      ejsLoaded = false;
       backdrop.remove();
       unlockOrientation();
-      delete window.EJS_player;
       /* retoma a radio se estava tocando antes */
       if(window._emuRadioWasPlaying){ window._emuRadioWasPlaying = false; window.toggleRadio(); }
     }
@@ -970,7 +1017,7 @@ function stopGhost(id){
     if(!playing){
       // set src fresh every time to avoid stale stream
       audio.src = STREAM;
-      audio.volume = 1;
+      audio.volume = parseFloat(document.getElementById('radio-vol').value);
       const p = audio.play();
       if(p !== undefined){
         p.then(onPlay).catch(err => {
