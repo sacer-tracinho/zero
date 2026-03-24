@@ -613,8 +613,9 @@ document.fonts.ready.then(()=>{
 
 
 /* ── EASTER EGG ──────────────────────────────────────────────
-   7x clique no título  → gatinho
-   7x clique no gatinho em < 5s → seleção de jogo → emulador SNES
+   7x clique no título        → gatinho
+   7x clique no gatinho       → seleção de jogo → emulador SNES
+   7x clique no header do emu → fecha SNES → seleção Pokémon → GBA/GBC
 ─────────────────────────────────────────────────────────────── */
 (function(){
   var taps = 0, lastTap = 0, shown = false;
@@ -623,13 +624,23 @@ document.fonts.ready.then(()=>{
   var EJS_PATH = 'https://cdn.emulatorjs.org/stable/data/';
 
   var GAMES = [
-    { name: 'Top Gear',                                   url: BASE+'wot/drivefast.smc' },
+    { name: 'Top Gear',                                   url: BASE+'wot/drivefaster.smc' },
     { name: 'Donkey Kong Country 2',                      url: BASE+'wot/banana.smc'    },
     { name: 'Super Mario Kart',                           url: BASE+'wot/chaos.smc'     },
     { name: 'Super Mario All-Stars + Super Mario World',  url: BASE+'wot/classics.smc'  },
     { name: 'Aladdin',                                    url: BASE+'wot/hthief.smc'    },
     { name: 'TMNT IV: Turtles in Time ♥',                 url: BASE+'mom.smc'           },
     { name: 'Goof Troop',                                 url: BASE+'dad.smc'           },
+  ];
+
+  var POKE_GAMES = [
+    { name: 'Pokémon FireRed',                        url: BASE+'wwot/opala.gba', core: 'gba',      platform: 'GAME BOY ADVANCE', gen: 'GEN I · KANTO',    color: '#c86050' },
+    { name: 'Pokémon Crystal',                        url: BASE+'wwot/glass.gbc', core: 'gambatte',  platform: 'GAME BOY COLOR',   gen: 'GEN II · JOHTO',   color: '#6a9870' },
+    { name: 'Pokémon Emerald',                        url: BASE+'wwot/verde.gba', core: 'gba',       platform: 'GAME BOY ADVANCE', gen: 'GEN III · HOENN',  color: '#4a9ed4' },
+    { name: 'Pokémon Trading Card Game',              url: BASE+'wwot/barai.gbc', core: 'gambatte',  platform: 'GAME BOY COLOR',   gen: 'SPINOFF',          color: '#3a2f52' },
+    { name: 'Pokémon Pinball: Ruby & Sapphire',       url: BASE+'wwot/rgb.gba',   core: 'gba',       platform: 'GAME BOY ADVANCE', gen: 'SPINOFF',          color: '#3a2f52' },
+    { name: 'Pokémon Mystery Dungeon: Red Rescue',    url: BASE+'wwot/pdg.zip',   core: 'gba',       platform: 'GAME BOY ADVANCE', gen: 'SPINOFF',          color: '#3a2f52' },
+    { name: 'Pokémon Puzzle Challenge',               url: BASE+'wwot/faz3.gbc',  core: 'gambatte',  platform: 'GAME BOY COLOR',   gen: 'SPINOFF',          color: '#3a2f52' },
   ];
 
   /* ─ keyboard dispatch para controles mobile ─ */
@@ -712,6 +723,143 @@ document.fonts.ready.then(()=>{
       try{ screen.orientation.unlock(); }catch(e){}
   }
 
+  /* ─ tela de seleção Pokémon ─ */
+  function showPokeSelect(){
+    var sel = document.createElement('div');
+    sel.id = '_poke-select';
+    sel.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(13,10,20,0.96)';
+
+    var box = document.createElement('div');
+    box.style.cssText = 'display:flex;flex-direction:column;gap:5px;width:min(540px,92%);';
+
+    var lbl = document.createElement('div');
+    lbl.style.cssText = 'font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:0.2em;color:#3a6045;text-transform:uppercase;display:flex;align-items:center;gap:14px;margin-bottom:0.9rem';
+    lbl.innerHTML = '// ESCOLHA SUA JORNADA&nbsp;<span style="flex:1;height:1px;background:#1a2820;display:inline-block"></span>';
+    box.appendChild(lbl);
+
+    POKE_GAMES.forEach(function(game, i){
+      var row = document.createElement('div');
+      row.style.cssText = 'background:#110d1c;border:1px solid #1e1630;padding:1rem 1.4rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:background 0.18s,border-color 0.18s';
+
+      var gen = document.createElement('span');
+      gen.style.cssText = 'font-family:JetBrains Mono,monospace;font-size:9px;letter-spacing:0.12em;flex-shrink:0;color:'+game.color;
+      gen.textContent = game.gen;
+
+      var name = document.createElement('span');
+      name.style.cssText = 'font-family:Syne,sans-serif;font-size:14px;font-weight:700;color:#ddd8cc;flex:1;letter-spacing:-0.01em';
+      name.textContent = game.name;
+
+      var plat = document.createElement('span');
+      plat.style.cssText = 'font-family:JetBrains Mono,monospace;font-size:8px;color:#3a2f52;letter-spacing:0.1em;flex-shrink:0';
+      plat.textContent = game.platform;
+
+      var arr = document.createElement('span');
+      arr.style.cssText = 'font-family:JetBrains Mono,monospace;color:#3a2f52;font-size:14px;transition:color 0.18s,transform 0.18s;flex-shrink:0;margin-left:10px';
+      arr.textContent = '→';
+
+      row.appendChild(gen); row.appendChild(name); row.appendChild(plat); row.appendChild(arr);
+
+      row.addEventListener('mouseenter', function(){
+        row.style.background='#0e1810'; row.style.borderColor='#2a4030';
+        arr.style.color=game.color; arr.style.transform='translateX(5px)';
+      });
+      row.addEventListener('mouseleave', function(){
+        row.style.background='#110d1c'; row.style.borderColor='#1e1630';
+        arr.style.color='#3a2f52'; arr.style.transform='';
+      });
+      row.addEventListener('click', function(e){
+        e.stopPropagation();
+        sel.remove();
+        launchPokeEmulator(game);
+      });
+      box.appendChild(row);
+    });
+
+    sel.appendChild(box);
+    sel.addEventListener('click', function(){ sel.remove(); });
+    document.body.appendChild(sel);
+  }
+
+  var ejsPokeLoaded = false;
+  function launchPokeEmulator(game){
+    /* pausa a radio se estiver tocando */
+    if(typeof window.toggleRadio === 'function' && document.getElementById('radio-player').classList.contains('playing')){
+      window.toggleRadio();
+      window._pokeRadioWasPlaying = true;
+    } else {
+      window._pokeRadioWasPlaying = false;
+    }
+
+    function closePokeEmu(){
+      try{
+        if(window.EJS_emulator){
+          if(typeof window.EJS_emulator.pause  === 'function') window.EJS_emulator.pause();
+          if(typeof window.EJS_emulator.exit   === 'function') window.EJS_emulator.exit();
+          if(typeof window.EJS_emulator.remove === 'function') window.EJS_emulator.remove();
+        }
+        var ejsAudio = document.querySelectorAll('#ejs-poke audio, #ejs-poke video');
+        ejsAudio.forEach(function(a){ try{ a.pause(); a.src=''; }catch(e){} });
+        if(window.EJS_emulator && window.EJS_emulator.Module){
+          var m = window.EJS_emulator.Module;
+          if(m.SDL2){ try{ m.SDL2.audioContext && m.SDL2.audioContext.close(); }catch(e){} }
+        }
+      }catch(e){}
+      delete window.EJS_emulator;
+      delete window.EJS_player;
+      ejsPokeLoaded = false;
+      pokeBackdrop.remove();
+      /* retoma a radio se estava tocando antes */
+      if(window._pokeRadioWasPlaying){ window._pokeRadioWasPlaying = false; window.toggleRadio(); }
+    }
+
+    var pokeBackdrop = document.createElement('div');
+    pokeBackdrop.id = '_poke-backdrop';
+    pokeBackdrop.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(10,8,18,0.82);display:flex;align-items:center;justify-content:center;';
+    pokeBackdrop.addEventListener('click', function(e){
+      if(e.target === pokeBackdrop){ closePokeEmu(); }
+    });
+
+    var emu = document.createElement('div');
+    emu.id = '_emulator';
+
+    var hdr = document.createElement('div'); hdr.className = 'emu-header';
+    var ttl = document.createElement('span'); ttl.className = 'emu-title';
+    ttl.textContent = '// ' + game.name.toUpperCase() + ' \u00b7 ' + game.platform;
+    var cls = document.createElement('button'); cls.className = 'emu-close';
+    cls.textContent = '// \u2715 FECHAR';
+    cls.onclick = function(){ closePokeEmu(); };
+    var bck = document.createElement('button'); bck.className = 'emu-close';
+    bck.textContent = '// \u2190 VOLTAR';
+    bck.style.marginRight = '6px';
+    bck.onclick = function(){ closePokeEmu(); showPokeSelect(); };
+    hdr.appendChild(ttl); hdr.appendChild(bck); hdr.appendChild(cls);
+    emu.appendChild(hdr);
+
+    var gw = document.createElement('div'); gw.className = 'emu-game-wrap';
+    var ge = document.createElement('div'); ge.id = 'ejs-poke';
+    ge.style.cssText = 'width:100%;height:100%;';
+    gw.appendChild(ge);
+    emu.appendChild(gw);
+
+    pokeBackdrop.appendChild(emu);
+    document.body.appendChild(pokeBackdrop);
+
+    window.EJS_player         = '#ejs-poke';
+    window.EJS_core           = game.core;
+    window.EJS_gameUrl        = game.url;
+    window.EJS_pathtodata     = EJS_PATH;
+    window.EJS_startOnLoaded  = true;
+    window.EJS_color          = '#6a9870';
+    window.EJS_VirtualGamepad = false;
+
+    if(!ejsPokeLoaded){
+      var sc = document.createElement('script');
+      sc.src = EJS_PATH + 'loader.js';
+      sc.onload = function(){ ejsPokeLoaded = true; };
+      document.body.appendChild(sc);
+    }
+  }
+
   /* ─ tela de seleção de jogo ─ */
   function showGameSelect(){
     var sel = document.createElement('div');
@@ -772,7 +920,6 @@ document.fonts.ready.then(()=>{
     shown = false;
 
     var isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    if(isMobile) tryLandscape();
 
     /* pausa a radio se estiver tocando */
     if(typeof window.toggleRadio === 'function' && document.getElementById('radio-player').classList.contains('playing')){
@@ -804,8 +951,12 @@ document.fonts.ready.then(()=>{
       ejsLoaded = false;
       backdrop.remove();
       unlockOrientation();
-      /* retoma a radio se estava tocando antes */
-      if(window._emuRadioWasPlaying){ window._emuRadioWasPlaying = false; window.toggleRadio(); }
+      /* retoma a radio se estava tocando antes — exceto se estiver abrindo o Pokémon */
+      if(window._emuRadioWasPlaying && !window._emuTransitioning){
+        window._emuRadioWasPlaying = false;
+        window.toggleRadio();
+      }
+      window._emuTransitioning = false;
     }
 
     /* backdrop */
@@ -821,11 +972,47 @@ document.fonts.ready.then(()=>{
     /* header */
     var hdr = document.createElement('div'); hdr.className = 'emu-header';
     var ttl = document.createElement('span'); ttl.className = 'emu-title';
-    ttl.textContent = '// ' + game.name.toUpperCase() + ' \u00b7 SUPER NINTENDO';
+    ttl.style.cursor = 'default';
+    ttl.style.display = 'flex';
+    ttl.style.alignItems = 'center';
+    ttl.style.gap = '8px';
+
+    var catSvg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    catSvg.setAttribute('viewBox','0 0 20 20');
+    catSvg.setAttribute('width','14');
+    catSvg.setAttribute('height','14');
+    catSvg.style.flexShrink = '0';
+    catSvg.style.opacity = '0.55';
+    catSvg.innerHTML =
+      '<path fill="#ddd8cc" d="M4 2 L4 7 Q1 6 1 9 Q1 14 5 15 Q6 17 10 17 Q14 17 15 15 Q19 14 19 9 Q19 6 16 7 L16 2 L13 6 Q11.5 5 10 5 Q8.5 5 7 6 Z"/>' +
+      '<circle cx="7.5" cy="10" r="1" fill="#0d0a14"/>' +
+      '<circle cx="12.5" cy="10" r="1" fill="#0d0a14"/>' +
+      '<path fill="none" stroke="#0d0a14" stroke-width="0.8" stroke-linecap="round" d="M8.5 12.5 Q10 13.5 11.5 12.5"/>';
+    catSvg.style.display = 'inline-block';
+
+    var titleText = document.createElement('span');
+    titleText.textContent = game.name.toUpperCase() + ' \u00b7 SUPER NINTENDO';
+
+    ttl.appendChild(catSvg);
+    ttl.appendChild(titleText);
+
+    /* 7 cliques no título do emulador → fecha SNES → Pokémon */
+    var hdrTaps = 0, hdrLastTap = 0;
+    ttl.addEventListener('click', function(){
+      var now = Date.now();
+      if(now - hdrLastTap > 5000) hdrTaps = 0;
+      hdrLastTap = now; hdrTaps++;
+      if(hdrTaps >= 7){ hdrTaps = 0; window._emuTransitioning = true; closeEmu(); showPokeSelect(); }
+    });
+
     var cls = document.createElement('button'); cls.className = 'emu-close';
     cls.textContent = '// \u2715 FECHAR';
     cls.onclick = function(){ closeEmu(); };
-    hdr.appendChild(ttl); hdr.appendChild(cls);
+    var bck = document.createElement('button'); bck.className = 'emu-close';
+    bck.textContent = '// \u2190 VOLTAR';
+    bck.style.marginRight = '6px';
+    bck.onclick = function(){ closeEmu(); showGameSelect(); };
+    hdr.appendChild(ttl); hdr.appendChild(bck); hdr.appendChild(cls);
     emu.appendChild(hdr);
 
     /* game area */
