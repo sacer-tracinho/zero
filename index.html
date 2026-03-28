@@ -13,10 +13,11 @@ html,body{height:100%;background:#0d0a14}
 body{color:var(--z-text);font-family:'Syne',sans-serif;overflow-x:hidden}
 canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
 
-.page{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:5rem 2rem 6rem;transition:background 0.4s}
+.page{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:2.5rem 2rem 6rem;transition:background 0.4s}
 
-.hero{min-height:42vh;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:4.5rem}
-.title-main{font-size:clamp(64px,13vw,120px);font-weight:800;letter-spacing:-0.04em;color:var(--z-text);line-height:0.88;user-select:none}
+.hero{min-height:28vh;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:4.5rem}
+.title-main{font-size:clamp(64px,13vw,120px);font-weight:800;letter-spacing:-0.04em;color:var(--z-text);line-height:0.88;user-select:none;position:relative;display:inline-block;will-change:clip-path;}
+.glitch-layer{position:absolute;top:0;left:0;font-size:inherit;font-weight:800;font-family:'Syne',sans-serif;letter-spacing:-0.04em;line-height:0.88;white-space:nowrap;pointer-events:none;opacity:0;mix-blend-mode:screen;}
 .title-cursor{display:inline;animation:blink 1s step-end infinite;color:var(--z-text);vertical-align:baseline;font-size:0.85em;line-height:1}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
@@ -64,8 +65,8 @@ canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
 .footer{animation:fadeUp 0.7s 0.35s ease both;opacity:0;animation-fill-mode:forwards}
 
 @media(max-width:600px){
-  .page{padding:3rem 1.2rem 4rem}
-  .hero{min-height:30vh;padding-bottom:2.5rem}
+  .page{padding:1.5rem 1.2rem 4rem}
+  .hero{min-height:18vh;padding-bottom:2.5rem}
   .title-main{font-size:clamp(38px,14vw,64px);letter-spacing:-0.03em;white-space:nowrap}
   .binary-ticker{margin-top:0.8rem}
   .card{padding:1.2rem 1rem;align-items:flex-start}
@@ -623,6 +624,80 @@ document.fonts.ready.then(()=>{
 
 
 
+
+/* ── GLITCH EFFECT — .ZERO//_ ────────────────────────────────
+   Aberração cromática + corte horizontal. Sem pixel shift.
+   Intensidade 8 · Frequência 4 · Duração 2
+─────────────────────────────────────────────────────────────── */
+(function(){
+  var el = document.querySelector('.title-main');
+  if(!el) return;
+
+  var INTENSITY = 8;
+  var FREQ_BASE = 8000 - 4 * 600;           /* ~5600ms base */
+  var DUR_STEPS = 3 + Math.round(2 * 1.5);  /* ~6 frames    */
+  var FRAME_MS  = 40 + Math.round(2 * 12);  /* ~64ms/frame  */
+
+  /* camadas R e B inseridas DENTRO do .title-main
+     herdam font-size/weight/letter-spacing via CSS .glitch-layer */
+  var elR = document.createElement('span');
+  var elB = document.createElement('span');
+  elR.className = 'glitch-layer';
+  elB.className = 'glitch-layer';
+  elR.style.color = '#ff3030';
+  elB.style.color = '#3090ff';
+  elR.textContent = '.ZERO//_';
+  elB.textContent = '.ZERO//_';
+  el.insertBefore(elR, el.firstChild);
+  el.insertBefore(elB, el.firstChild);
+
+  var running = false;
+
+  function glitch(){
+    if(running) return;
+    running = true;
+    var step = 0;
+
+    function frame(){
+      if(step >= DUR_STEPS){
+        elR.style.opacity  = '0';
+        elB.style.opacity  = '0';
+        el.style.clipPath  = '';
+        running = false;
+        schedule();
+        return;
+      }
+
+      /* aberração cromática — deslocamento R/B em direções opostas */
+      var rx = (Math.random() - 0.5) * INTENSITY * 3.5;
+      var ry = (Math.random() - 0.5) * INTENSITY * 1.2;
+      elR.style.opacity   = String(0.45 + Math.random() * 0.4);
+      elB.style.opacity   = String(0.45 + Math.random() * 0.4);
+      elR.style.transform = 'translate(' +  rx + 'px,' +  ry + 'px)';
+      elB.style.transform = 'translate(' + (-rx) + 'px,' + (-ry) + 'px)';
+
+      /* corte horizontal no elemento principal */
+      if(Math.random() > 0.45){
+        var y1 = Math.round(Math.random() * 80);
+        var y2 = y1 + Math.round(Math.random() * 28 + 8);
+        el.style.clipPath = 'polygon(0 ' + y1 + '%,100% ' + y1 + '%,100% ' + y2 + '%,0 ' + y2 + '%)';
+      } else {
+        el.style.clipPath = '';
+      }
+
+      step++;
+      setTimeout(frame, FRAME_MS);
+    }
+    frame();
+  }
+
+  function schedule(){
+    var jitter = (Math.random() - 0.5) * 2000;
+    setTimeout(glitch, Math.max(1200, FREQ_BASE + jitter));
+  }
+
+  document.fonts.ready.then(function(){ schedule(); });
+})();
 
 /* ── EASTER EGG ──────────────────────────────────────────────
    7x clique no título        → gatinho
