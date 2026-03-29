@@ -634,7 +634,7 @@ document.fonts.ready.then(()=>{
   if(!el) return;
 
   var INTENSITY = 8;
-  var FREQ_BASE = 8000 - 4 * 600;           /* ~5600ms base */
+  var FREQ_BASE = 7600;                        /* intervalo base ~7.6s, jitter ±1s → 6.6–8.6s */
   var DUR_STEPS = 3 + Math.round(2 * 1.5);  /* ~6 frames    */
   var FRAME_MS  = 40 + Math.round(2 * 12);  /* ~64ms/frame  */
 
@@ -697,6 +697,9 @@ document.fonts.ready.then(()=>{
   }
 
   document.fonts.ready.then(function(){ schedule(); });
+
+  /* dispara manualmente ao passar o mouse — não interfere com os easter eggs (click) */
+  document.querySelector('.title-main').addEventListener('mouseenter', glitch);
 })();
 
 /* ── EASTER EGG ──────────────────────────────────────────────
