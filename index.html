@@ -236,6 +236,13 @@ body.light #c7:hover{background:#d8e8f4}
 #c8:hover{background:#0e0818}
 body.light #c8:hover{background:#ecdcf8}
 
+#c9::after{background:#96306a}
+#c9 .card-name{color:#cc5c9c}
+#c9 .ghost{color:#cc5c9c}
+#c9 .arrow{color:#96306a}
+#c9:hover{background:#160812}
+body.light #c9:hover{background:#f4d8e8}
+
 /* ── EMULATOR OVERLAY ── */
 #_emu-backdrop{
   position:fixed;inset:0;z-index:10000;
@@ -346,7 +353,7 @@ body.light #c8:hover{background:#ecdcf8}
     </div>
   </div>
 
-  <div class="section-label">campos ativos — 8</div>
+  <div class="section-label">campos ativos — 9</div>
 
   <div class="cards">
     <a class="card" id="c1" href="https://death-label.github.io/Nani/" target="_blank" rel="noopener">
@@ -452,6 +459,18 @@ body.light #c8:hover{background:#ecdcf8}
       </div>
       <div class="arrow">→</div>
     </a>
+    <a class="card" id="c9" href="https://death-label.github.io/FletchPage/" target="_blank" rel="noopener">
+      <div class="ghost" id="ghost-c9">➳</div>
+      <div class="card-body">
+        <div class="card-num">09 / TCG · MERCADO</div>
+        <div class="card-name">Fletch</div>
+        <div class="card-desc">Rastreador de preços de cartas no mercado brasileiro.<br>Extensão viva: captura, alerta e sincroniza entre máquinas.</div>
+        <div class="card-tags">
+          <span class="tag">pokémon tcg</span><span class="tag">preços</span><span class="tag">extensão</span>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+    </a>
   </div>
 
   <div class="footer">
@@ -474,6 +493,7 @@ const SETS = {
   arken: Array.from('⬡⬢◈⊕⊗∑∞≠≡∂√π₿Ξ₮Ł◎●○0123456789ABCDEFabcdef'),
   card: Array.from('₿$€£¥₩₣₤₦₱₹฿₫◈✦❖▶▷◁▲▼0123456789ABCDEF%‰∑∞≠≡∂√'),
   pkmc: Array.from('◎◉●○◐◑◒◓◔◕①②③④⑤⑥⑦⑧⑨★☆✦✧⊕⊗❋❊❉♾✕✖'),
+  fletch: Array.from('➳➵➶➷➸➹↝⤳⌖❧R$%0123456789,'),
   base: Array.from('何を見る観劇映韓アニメ運命星占⚔⚜✦❖◈◇◆⊕⊙∴∵ᚠᚢᚦᚨᚱᛁᛃᛇᛏᛒᛖᛗ₿Ξ0123456789ABCDEF∞≠≡∂∫√π')
 };
 
@@ -491,6 +511,7 @@ const ATMO = {
   arken:{r:2, g:14,b:20,accent:[28,172,192]},
   card: {r:4, g:10,b:22,accent:[26,90,138]},
   pkmc: {r:10,g:5,b:22,accent:[140,60,200]},
+  fletch:{r:20,g:4,b:14,accent:[190,70,140]},
   base: {r:13,g:10,b:20,accent:[90,70,160]}
 };
 let atmoState={r:13,g:10,b:20,accent:[90,70,160]};
@@ -616,6 +637,7 @@ function bgDraw(){
   {id:'c6',atmo:ATMO.arken,cls:'active-arken',set:'arken'},
   {id:'c7',atmo:ATMO.card,cls:'active-card',set:'card'},
   {id:'c8',atmo:ATMO.pkmc,cls:'active-pkmc',set:'pkmc'},
+  {id:'c9',atmo:ATMO.fletch,cls:'active-fletch',set:'fletch'},
 ].forEach(({id,atmo,cls,set})=>{
   const el=document.getElementById(id);
   el.addEventListener('mouseenter',()=>{
@@ -1275,7 +1297,8 @@ const GHOST_SETS = {
   'ghost-c5': Array.from('△▽◬▲▼◆◇✦❖⊕⊗✧☽⚔⚜⁂∴ᛟᚱᛞᛇᚦᛚᛜᚾᛁ♦♢◈⟡⬡'),
   'ghost-c6': Array.from('⬡⬢◈⊕⊗∑∞≠≡∂√π₿Ξ₮Ł◎●○0123456789ABCDEFabcdef'),
   'ghost-c7': Array.from('₿$€£¥₩₣₤₦₱₹฿₫₭₮₯₰₲₴₵₶₷₸₺₼₽¢◈✦❖▶▷◀◁▲△▼▽'),
-  'ghost-c8': Array.from('◎◉●○◐◑◒◓◔◕①②③④⑤⑥⑦⑧⑨★☆✦✧⊕⊗❋❊❉♾✕✖')
+  'ghost-c8': Array.from('◎◉●○◐◑◒◓◔◕①②③④⑤⑥⑦⑧⑨★☆✦✧⊕⊗❋❊❉♾✕✖'),
+  'ghost-c9': Array.from('➳➵➶➷➸➹↣↠↝↜⤳⇝⇜⌖⍟❧❦☙')
 };
 const ghostTimers = {};
 function startGhost(id, set){
@@ -1309,6 +1332,7 @@ function stopGhost(id){
   {gid:'ghost-c6',set:GHOST_SETS['ghost-c6']},
   {gid:'ghost-c7',set:GHOST_SETS['ghost-c7']},
   {gid:'ghost-c8',set:GHOST_SETS['ghost-c8']},
+  {gid:'ghost-c9',set:GHOST_SETS['ghost-c9']},
 ].forEach(({gid,set})=>startGhost(gid,set));
 
 /* ── RADIO PLAYER ─────────────────────────────────────────────
